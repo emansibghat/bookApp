@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import Navbar from "./Navbar";
 const ProfilePage = () => {
   const [username, setUsername] = useState('John Doe');
   const [email, setEmail] = useState('johndoe@example.com');
@@ -12,10 +12,14 @@ const ProfilePage = () => {
   };
 
   return (
+    <>
+    <Navbar />
+    
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+    
       <div className="container max-w-3xl bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">Profile Page</h2>
-        
+       
         {/* Profile Picture */}
         <div className="flex justify-center mb-6">
           <div className="relative w-24 h-24">
@@ -87,6 +91,7 @@ const ProfilePage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

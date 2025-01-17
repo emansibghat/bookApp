@@ -4,7 +4,7 @@ import './App.css'
 
 import HomePage from "./components/pages/HomePage";
 import AddBookPage from "./components/pages/AddBookPage";
-import MarketplacePage from "./components/pages/MarketplacePage";
+import Favourites from "./components/pages/favourites";
 import ProfilePage from "./components/pages/ProfilePage";
 import BookDetailsPage from "./components/pages/BookDetailsPage";
 import Login from "./components/pages/login";
@@ -20,7 +20,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/SignUp" element={<SignUp />} />
           <Route path="/login" element={ <Login/>} />
-          <Route path="/MarketplacePage" element={<MarketplacePage />} />
+          <Route path="/favorites" element={<Favourites />} />
           <Route path="/ProfilePage" element={<ProfilePage />} />
           <Route path="/AddBookPage" element={<AddBookPage />} />
           <Route path="/BookDetailsPage" element={<BookDetailsPage />} />
