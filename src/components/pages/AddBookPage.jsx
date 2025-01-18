@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
+import axios from "./axios";
+import API_URL from '../apiConfig';
 
 const AddBookPage = () => {
   const [title, setTitle] = useState("");
@@ -7,15 +9,14 @@ const AddBookPage = () => {
   const [description, setDescription] = useState("");
   const [coverImage, setCoverImage] = useState(null);
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic
-    console.log({
-      title,
-      author,
-      description,
-      coverImage,
-    });
+    try {
+        await axios.post(`${API_URL}/books`, book);
+        alert('Book added successfully!');
+    } catch (error) {
+        console.error("Error adding book:", error);
+    }
   };
 
   return (

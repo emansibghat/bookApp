@@ -3,6 +3,23 @@ import { Link } from "react-router-dom";
 import { FaEllipsisV } from "react-icons/fa"; // Three-dots icon
 import bookImage from "./book.png";
 import Books from "./booknew.png";
+import axios from 'axios';
+import API_URL from '../apiConfig';
+const books=()=>{
+  const [books, setBooks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(()=>{
+const fetchBooks =async ()=>{ 
+  try {
+    const response = await axios.get('${API_URL}/books')
+    setBooks(response.data)
+  } catch (error) {
+    console.error('Error fetching books:', error);
+  }
+  };
+  fetchBooks();
+},[]);
+}
 
 const HomePage = () => {
   const [menuOpen, setMenuOpen] = useState(false);
