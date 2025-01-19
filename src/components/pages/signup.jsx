@@ -14,14 +14,14 @@ const SignUp = () => {
 
   const submitForm = async (e) => {
     e.preventDefault();
-
+  
     if (!username || !name || !email || !password) {
       toast.error('All fields are required.');
       return;
     }
-
+  
     setIsLoading(true);
-
+  
     try {
       const result = await axios.post('http://localhost:5000/api/user/signup', {
         username,
@@ -29,9 +29,10 @@ const SignUp = () => {
         email,
         password,
       });
-      if (result.status === 200) {
+  
+      if (result.status === 201) { // Handle correct success status
         toast.success('Account created successfully!');
-        setTimeout(() => navigate('/login'), 1500);
+        setTimeout(() => navigate('/login'), 1500); // Redirect to login after success
       }
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to create account');
@@ -40,6 +41,7 @@ const SignUp = () => {
       setIsLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
