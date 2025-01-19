@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
-import axios from "./axios";
-import API_URL from '../apiConfig';
+import axios from "axios";
+
+const API_URL = "http://localhost:5000";
 
 const AddBookPage = () => {
   const [title, setTitle] = useState("");

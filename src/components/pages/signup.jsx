@@ -1,15 +1,40 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import bookImage from './book.png';
+import axios from 'axios';
 
 const SignUp = () => {
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
+
+    if (!username || !name || !email || !password) {
+      setError('All fields are required.');
+      return;
+    }
+
+    try {
+      const result = await axios.post('http://localhost:5000/signup', {
+        username,
+        name,
+        email,
+        password,
+      });
+      setSuccess('Account created successfully!');
+      setError('');
+      setTimeout(() => navigate('/login'), 2000); // Redirect to login page after 2 seconds
+    } catch (err) {
+      setError('Failed to create an account. Please try again.');
+      setSuccess('');
+      console.error(err);
+    }
   };
 
   return (
@@ -21,6 +46,10 @@ const SignUp = () => {
             <h2 className="text-3xl font-bold text-gray-200 text-center mb-6">
               Sign Up
             </h2>
+            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+            {success && (
+              <p className="text-green-500 text-center mb-4">{success}</p>
+            )}
             <div className="inputBox mb-4">
               <label
                 htmlFor="username"
@@ -35,6 +64,7 @@ const SignUp = () => {
                 type="text"
                 placeholder="Enter your username"
                 className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-200"
+                required
               />
             </div>
             <div className="inputBox mb-4">
@@ -48,6 +78,7 @@ const SignUp = () => {
                 type="text"
                 placeholder="Enter your name"
                 className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-200"
+                required
               />
             </div>
             <div className="inputBox mb-4">
@@ -61,6 +92,7 @@ const SignUp = () => {
                 type="email"
                 placeholder="Enter your email"
                 className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-200"
+                required
               />
             </div>
             <div className="inputBox mb-4">
@@ -77,6 +109,7 @@ const SignUp = () => {
                 type="password"
                 placeholder="Enter your password"
                 className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-200"
+                required
               />
             </div>
             <p className="text-gray-400 text-sm mb-4">

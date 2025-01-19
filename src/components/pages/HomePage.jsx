@@ -4,7 +4,6 @@ import { FaEllipsisV } from "react-icons/fa"; // Three-dots icon
 import bookImage from "./book.png";
 import Books from "./booknew.png";
 import axios from 'axios';
-import API_URL from '../apiConfig';
 const books=()=>{
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);

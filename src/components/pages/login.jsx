@@ -1,18 +1,41 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import bookImage from './book.png';
 
 const Login = () => {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:5000/login', {
+        name,
+        password,
+      });
+
+      // Check if the backend responds with success
+      if (response.status === 200 && response.data.status === 'success') {
+        localStorage.setItem('token', response.data.token);
+        alert('Login successful');
+        navigate('/homePage'); // Navigate to the home page
+      } else {
+        // Handle cases where login fails but the server responds (e.g., invalid credentials)
+        alert(response.data.message || 'Incorrect username or password');
+      }
+    } catch (error) {
+      // Log error details for debugging and provide user-friendly feedback
+      console.error('Login error:', error);
+      alert('An error occurred during login. Please try again later.');
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
-       <div className="container max-w-4xl mx-auto flex flex-col lg:flex-row bg-gray-800 shadow-lg rounded-lg overflow-hidden">
+      <div className="container max-w-4xl mx-auto flex flex-col lg:flex-row bg-gray-800 shadow-lg rounded-lg overflow-hidden">
         {/* Left Section */}
         <div className="w-full lg:w-1/2 flex flex-col justify-center items-center p-6 lg:p-12">
           <form onSubmit={submitForm} className="w-full">
@@ -33,6 +56,7 @@ const Login = () => {
                 type="text"
                 placeholder="Enter your name"
                 className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-200"
+                required
               />
             </div>
             <div className="inputBox mb-4">
@@ -49,6 +73,7 @@ const Login = () => {
                 type="password"
                 placeholder="Enter your password"
                 className="w-full p-3 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-200"
+                required
               />
             </div>
             <p className="text-gray-400 text-sm mb-4">
