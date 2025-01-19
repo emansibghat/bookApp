@@ -4,20 +4,20 @@ import { FaEllipsisV } from "react-icons/fa"; // Three-dots icon
 import bookImage from "./book.png";
 import Books from "./booknew.png";
 import axios from 'axios';
-const books=()=>{
+const books = () => {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  useEffect(()=>{
-const fetchBooks =async ()=>{ 
-  try {
-    const response = await axios.get('${API_URL}/books')
-    setBooks(response.data)
-  } catch (error) {
-    console.error('Error fetching books:', error);
-  }
-  };
-  fetchBooks();
-},[]);
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const response = await axios.get('${API_URL}/books')
+        setBooks(response.data)
+      } catch (error) {
+        console.error('Error fetching books:', error);
+      }
+    };
+    fetchBooks();
+  }, []);
 }
 
 const HomePage = () => {
@@ -47,7 +47,7 @@ const HomePage = () => {
                 onClick={toggleMenu}
                 aria-label="Menu"
               >
-               
+
               </button>
               {menuOpen && (
                 <div

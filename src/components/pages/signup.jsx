@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import bookImage from './book.png';
 import axios from 'axios';
 
@@ -8,32 +9,35 @@ const SignUp = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const submitForm = async (e) => {
     e.preventDefault();
 
     if (!username || !name || !email || !password) {
-      setError('All fields are required.');
+      toast.error('All fields are required.');
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      const result = await axios.post('http://localhost:5000/signup', {
+      const result = await axios.post('http://localhost:5000/api/user/signup', {
         username,
         name,
         email,
         password,
       });
-      setSuccess('Account created successfully!');
-      setError('');
-      setTimeout(() => navigate('/login'), 2000); // Redirect to login page after 2 seconds
+      if (result.status === 200) {
+        toast.success('Account created successfully!');
+        setTimeout(() => navigate('/login'), 1500);
+      }
     } catch (err) {
-      setError('Failed to create an account. Please try again.');
-      setSuccess('');
+      toast.error(err.response?.data?.message || 'Failed to create account');
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -46,10 +50,6 @@ const SignUp = () => {
             <h2 className="text-3xl font-bold text-gray-200 text-center mb-6">
               Sign Up
             </h2>
-            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
-            {success && (
-              <p className="text-green-500 text-center mb-4">{success}</p>
-            )}
             <div className="inputBox mb-4">
               <label
                 htmlFor="username"
@@ -120,9 +120,17 @@ const SignUp = () => {
             </p>
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 rounded hover:opacity-90 transition"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 rounded hover:opacity-90 transition disabled:opacity-50"
             >
-              Sign Up
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-t-2 border-white border-solid rounded-full animate-spin"></div>
+                  <span className="ml-2">Creating Account...</span>
+                </div>
+              ) : (
+                'Sign Up'
+              )}
             </button>
           </form>
         </div>
