@@ -22,7 +22,7 @@ const Navbar = () => {
         <nav className="space-x-6 hidden md:block">
           <Link to="/" className="hover:underline">Home</Link>
           <Link to="/categories" className="hover:underline">Categories</Link>
-          {user && <Link to="/favorites" className="hover:underline">Favorites</Link>}
+          {user && <Link to="/favourites" className="hover:underline">Favorites</Link>}
           {user && <Link to="/ProfilePage" className="hover:underline">Profile</Link>}
         </nav>
         <div className="relative flex items-center">
