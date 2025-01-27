@@ -13,8 +13,11 @@ export const fetchFavoritesDB = createAsyncThunk(
 // Add a book to favorites
 export const addToFavoriteDB = createAsyncThunk(
   "favorites/addToFavoriteDB",
-  async (book) => {
-    const response = await axios.post("/api/favourites", book);
+  async ({userId,bookId}) => {
+    const response = await axios.post("/api/favourites", {
+      userId: userId,
+      bookId: bookId,
+    });
     return response.data;
   }
 );

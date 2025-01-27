@@ -6,7 +6,12 @@ import bookImage from "./book.png";
 import Books from "./booknew.png";
 import FavouritesPage from "./favourites";
 
+import { useDispatch } from "react-redux";
+import { addToFavoriteDB } from "../../redux/slices/favSlice";
+
+
 const HomePage = () => {
+  const dispatch = useDispatch();
   const [favorites, setFavorites] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -18,6 +23,7 @@ const HomePage = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/favorites");
         setFavorites(response.data);
+        dispatch(addToFavoriteDB({userId:userId,bookId:bookId})); 
       } catch (error) {
         console.error("Error fetching favorites:", error);
       }
