@@ -27,9 +27,12 @@ const HomePage = () => {
   }, []);
 
   // Add a book to favorites
-  const handleAddToFav = async (book) => {
+  const handleAddToFav = async (bookId, userId) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/favorites/add", book);
+      const response = await axios.post("http://localhost:5000/api/favorites/add", {
+        bookId: bookId,
+        userId: userId,
+      });
       setFavorites((prevFavorites) => [...prevFavorites, response.data]);
     } catch (error) {
       console.error("Error adding to favorites:", error);
@@ -144,21 +147,12 @@ const HomePage = () => {
                 <div className="p-4">
                   <h3 className="font-bold text-lg text-gray-700">{book.title}</h3>
                   <p className="text-sm text-gray-500">{book.author}</p>
-                  {FavouritesPage ((fav) => fav.id === book.id) ? (
-                    <button
-                      onClick={() => handleRemoveFromFav(book.id)}
-                      className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    >
-                      Remove from Favorites
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleAddToFav(book)}
-                      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    >
-                      Add to Favorites
-                    </button>
-                  )}
+                  <button
+                    onClick={() => handleAddToFav(book)}
+                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    Add to Favorites
+                  </button>
                 </div>
               </div>
             ))}
