@@ -33,7 +33,8 @@ const HomePage = () => {
   }, []);
 
   // Add a book to favorites
-  const handleAddToFav = async (bookId, userId) => {
+  const handleAddToFav = async (bookId) => {
+    const {userId}= localStorage.getItem('user'); 
     try {
       const response = await axios.post("http://localhost:5000/api/favorites/add", {
         bookId: bookId,
@@ -154,7 +155,7 @@ const HomePage = () => {
                   <h3 className="font-bold text-lg text-gray-700">{book.title}</h3>
                   <p className="text-sm text-gray-500">{book.author}</p>
                   <button
-                    onClick={() => handleAddToFav(book)}
+                    onClick={() => handleAddToFav(book.id)}
                     className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                   >
                     Add to Favorites
