@@ -4,11 +4,13 @@ import axios from "axios";
 // Fetch favorites from the database
 export const fetchFavoritesDB = createAsyncThunk(
   "favorites/fetchFavoritesDB",
-  async () => {
-    const response = await axios.get("/api/favourites");
+  async (userId) => {
+    const response = await axios.get("/api/favourites/fetch",{
+
+         userId:userId
+        });
     return response.data;
-  }
-);
+  });
 
 // Add a book to favorites
 export const addToFavoriteDB = createAsyncThunk(
