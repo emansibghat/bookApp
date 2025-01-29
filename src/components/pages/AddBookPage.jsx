@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import axios from "axios";
 
-//const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5000/api";
 
 const AddBookPage = () => {
   const [title, setTitle] = useState("");
@@ -11,15 +11,26 @@ const AddBookPage = () => {
   const [coverImage, setCoverImage] = useState(null);
 
   const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        await axios.post(`${API_URL}/books`, book);
-        alert('Book added successfully!');
-    } catch (error) {
-        console.error("Error adding book:", error);
-    }
+      e.preventDefault();
+      try {
+          const token = localStorage.getItem("token");
+          const formData = new FormData();
+          
+          formData.append('title', title);
+          formData.append('author', author);
+          formData.append('description', description);
+          formData.append('coverImage', coverImage);
+  
+          await axios.post(`${API_URL}/books`, formData, {
+              headers: {
+                  'Authorization': `Bearer ${token}`
+              }
+          });
+          alert('Book added successfully!');
+      } catch (error) {
+          console.error("Error adding book:", error);
+      }
   };
-
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Add Navbar */}

@@ -10,19 +10,17 @@ import {
 const FavouritesPage = () => {
   const dispatch = useDispatch();
   const { favorites, loading, error } = useSelector((state) => state.favorites);
-  const userId = "123"; 
 
   useEffect(() => {
-    dispatch(fetchFavoritesDB(userId));
-  }, [dispatch, userId]);
+    dispatch(fetchFavoritesDB());
+  }, [dispatch]);
 
   const handleRemoveFromFav = (id) => {
-    const userId = "123"; 
-    dispatch(removeFavoriteDB({ id, userId }));
+    dispatch(removeFavoriteDB(id));
   };
 
-  const handleAddToFavorite = (book) => {
-    dispatch(addToFavoriteDB(book));
+  const handleAddToFavorite = (bookId) => {
+    dispatch(addToFavoriteDB(bookId));
   };
 
   const handleIncrementFavCount = (id, count) => {
@@ -51,33 +49,39 @@ const FavouritesPage = () => {
         ) : !Array.isArray(favorites) || favorites.length === 0 ? (
           <p>No favorites yet.</p>
         ) : (
-          favorites.map((book) => (
-            <div key={book._id} className="border p-4 mb-4">
-              <h2>{book.title}</h2>
-              <p>Author: {book.author}</p>
-              <p>Count: {book.count}</p>
-              <button
-                onClick={() => handleIncrementFavCount(book._id, book.count)}
-                className="bg-blue-500 text-white px-2 py-1 rounded"
-              >
-                +
-              </button>
-              <button
-                onClick={() => handleAddToFavorite(book)}
-                className="bg-green-500 text-white px-2 py-1 rounded mx-2"
-              ></button>
-              <button
-                onClick={() => handleDecrementFavCount(book._id, book.count)}
-                className="bg-red-500 text-white px-2 py-1 rounded mx-2"
-              >
-                -
-              </button>
-              <button
-                onClick={() => handleRemoveFromFav(book._id)}
-                className="bg-gray-500 text-white px-2 py-1 rounded"
-              >
-                Remove from Favorites
-              </button>
+          favorites.map((favorite) => (
+            <div key={favorite._id} className="border p-4 mb-4 flex items-center gap-4 bg-white rounded-lg shadow">
+              <img 
+                src={favorite.bookId.coverImage} 
+                alt={favorite.bookId.title} 
+                className="w-32 h-40 object-cover rounded"
+              />
+              <div>
+                <h2 className="text-xl font-semibold">{favorite.bookId.title}</h2>
+                <p className="text-gray-600">Author: {favorite.bookId.author}</p>
+                <p className="text-gray-600 mt-2">{favorite.bookId.description}</p>
+                <div className="mt-4 flex items-center gap-2">
+                  <button
+                    onClick={() => handleIncrementFavCount(favorite._id, favorite.count)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                  >
+                    +
+                  </button>
+                  <span className="mx-2">Count: {favorite.count || 1}</span>
+                  <button
+                    onClick={() => handleDecrementFavCount(favorite._id, favorite.count)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  >
+                    -
+                  </button>
+                  <button
+                    onClick={() => handleRemoveFromFav(favorite.bookId._id)}
+                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 ml-4"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
             </div>
           ))
         )}

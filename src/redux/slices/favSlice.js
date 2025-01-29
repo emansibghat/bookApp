@@ -4,41 +4,35 @@ import axios from "axios";
 // Fetch favorites from the database
 export const fetchFavoritesDB = createAsyncThunk(
   "favorites/fetchFavoritesDB",
-  async (userId) => {
-    const response = await axios.get("/api/favourites/fetch",{
-
-         userId:userId
-        });
+  async () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const response = await axios.get(`http://localhost:5000/api/favorites/fetch?userId=${user?.id}`);
     return response.data;
-  });
+  }
+);
 
 // Add a book to favorites
 export const addToFavoriteDB = createAsyncThunk(
   "favorites/addToFavoriteDB",
-  async ({userId,bookId}) => {
-    const response = await axios.post("/api/favourites", {
-      userId: userId,
-      bookId: bookId,
+  async (bookId) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const response = await axios.post("http://localhost:5000/api/favorites/add", {
+      userId: user?.id,
+      bookId
     });
     return response.data;
   }
 );
 
+// Remove from favorites
 export const removeFavoriteDB = createAsyncThunk(
   "favorites/removeFavoriteDB",
-  async ( id ) => {
-    try {
-      const response = await axios.delete(`/api/favourites/remove/${id}`, {
-        params: { userId:'123' },
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Error removing from favorites:", error);
-      throw error;
-    }
+  async (id) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    const response = await axios.delete(`http://localhost:5000/api/favorites/remove/?userId=${user?.id}&bookId=${id}`);
+    return response.data;
   }
 );
-
 
 // Update a book in favorites
 export const updateFavoriteDB = createAsyncThunk(

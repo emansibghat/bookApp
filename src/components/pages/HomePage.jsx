@@ -6,7 +6,7 @@ import bookImage from "./book.png";
  import Books from "./booknew.png";
 import { useDispatch, useSelector } from "react-redux";
 import { getBooks } from "../../redux/slices/booksSlice";
-import { addToFavoriteDB } from "../../redux/slices/favSlice";
+import { fetchFavoritesDB, addToFavoriteDB } from "../../redux/slices/favSlice";
 
 const HomePage = () => {
   const MAX_BOOKS_COUNT = 10;
@@ -17,6 +17,9 @@ const HomePage = () => {
   const [startIndex, setStartIndex] = useState(1);
   const [favorites, setFavorites] = useState([]);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [localBooks, setLocalBooks] = useState([]);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -24,20 +27,49 @@ const HomePage = () => {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/favorites/fetch");
-        setFavorites(response.data);
+        const user = JSON.parse(localStorage.getItem("user"));
+        const userId = user?.id;
+        
+        if (userId) {
+          const response = await axios.get("http://localhost:5173/api/favourites/fetch");
+          setFavorites(response.data);
+        }
       } catch (error) {
         console.error("Error fetching favorites:", error);
-        alert("Failed to load favorites. Please try again later.");
       }
     };
     fetchFavorites();
   }, []);
 
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`http://localhost:5000/api/books?page=${currentPage}&limit=8`,
+          {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        }
+        );
+        setLocalBooks(response.data.books);
+        setTotalPages(response.data.totalPages);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      }
+    };
+    fetchBooks();
+  }, [currentPage]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    window.scrollTo(0, 0);
+  };
+
   // Add a book to favorites
   const handleAddToFav = async (bookId) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    const userId = user?.userId;
+    const userId = user?.id;
 
     if (!userId) {
       alert("Please log in to add books to your favorites.");
@@ -45,7 +77,9 @@ const HomePage = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/favorites/add", { bookId, userId });
+      const response = await axios.post("http://localhost:5000/api/favorites/add", 
+        { bookId, userId }
+      );
       setFavorites((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Error adding to favorites:", error);
@@ -106,15 +140,47 @@ const HomePage = () => {
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {books.map((book) => (
-            <div key={book.id} className="bg-white p-4 shadow rounded hover:shadow-lg transition">
-              <Link to={`/book/${book.id}`}>
-                <img src={book.volumeInfo.imageLinks.thumbnail || bookImage} alt={book.volumeInfo?.title} className="h-40 w-full object-cover mb-2" />
+          {(books.length > 0 ? books : localBooks).map((book) => (
+            <div key={book.id || book._id} className="bg-white p-4 shadow rounded hover:shadow-lg transition">
+              <Link to={`/book/${book.id || book._id}`}>
+                <img 
+                  src={book.volumeInfo?.imageLinks?.thumbnail || book.coverImage || bookImage} 
+                  alt={book.volumeInfo?.title || book.title} 
+                  className="h-40 w-full object-cover mb-2" 
+                />
               </Link>
-              <button onClick={() => handleAddToFav(book.id)} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add to Favorites</button>
+              <button 
+                onClick={() => handleAddToFav(book.id || book._id)} 
+                className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+              >
+                Add to Favorites
+              </button>
             </div>
           ))}
         </div>
+
+        {/* Pagination Controls */}
+        {!books.length && totalPages > 1 && (
+          <div className="flex justify-center mt-6 space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+            >
+              Previous
+            </button>
+            <span className="px-4 py-2">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Footer */}
