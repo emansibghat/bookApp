@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   fetchFavoritesDB,
@@ -10,6 +10,7 @@ import {
 const FavouritesPage = () => {
   const dispatch = useDispatch();
   const { favorites, loading, error } = useSelector((state) => state.favorites);
+  const [favItems, setFavItems] = useState(1)
 
   useEffect(() => {
     dispatch(fetchFavoritesDB());
@@ -17,19 +18,16 @@ const FavouritesPage = () => {
 
   const handleRemoveFromFav = (id) => {
     dispatch(removeFavoriteDB(id));
+    window.location.reload()
   };
 
-  const handleAddToFavorite = (bookId) => {
-    dispatch(addToFavoriteDB(bookId));
+  const handleIncrementFavCount = () => {
+    setFavItems(favItems + 1)
   };
 
-  const handleIncrementFavCount = (id, count) => {
-    dispatch(updateFavoriteDB({ id, book: { count: count + 1 } }));
-  };
-
-  const handleDecrementFavCount = (id, count) => {
-    if (count > 1) {
-      dispatch(updateFavoriteDB({ id, book: { count: count - 1 } }));
+  const handleDecrementFavCount = () => {
+    if (favItems > 1) {
+      setFavItems(favItems -1)
     }
   };
 
@@ -51,9 +49,9 @@ const FavouritesPage = () => {
         ) : (
           favorites.map((favorite) => (
             <div key={favorite._id} className="border p-4 mb-4 flex items-center gap-4 bg-white rounded-lg shadow">
-              <img 
-                src={favorite.bookId.coverImage} 
-                alt={favorite.bookId.title} 
+              <img
+                src={favorite.bookId.coverImage}
+                alt={favorite.bookId.title}
                 className="w-32 h-40 object-cover rounded"
               />
               <div>
@@ -62,14 +60,14 @@ const FavouritesPage = () => {
                 <p className="text-gray-600 mt-2">{favorite.bookId.description}</p>
                 <div className="mt-4 flex items-center gap-2">
                   <button
-                    onClick={() => handleIncrementFavCount(favorite._id, favorite.count)}
+                    onClick={() => handleIncrementFavCount()}
                     className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                   >
                     +
                   </button>
-                  <span className="mx-2">Count: {favorite.count || 1}</span>
+                  <span className="mx-2">Count: {favItems}</span>
                   <button
-                    onClick={() => handleDecrementFavCount(favorite._id, favorite.count)}
+                    onClick={() => handleDecrementFavCount()}
                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                   >
                     -

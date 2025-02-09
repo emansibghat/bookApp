@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { FaEllipsisV } from "react-icons/fa";
 import axios from "axios";
 import bookImage from "./book.png";
- import Books from "./booknew.png";
+import Books from "./booknew.png";
 import { useDispatch, useSelector } from "react-redux";
 import { getBooks } from "../../redux/slices/booksSlice";
 import { fetchFavoritesDB, addToFavoriteDB } from "../../redux/slices/favSlice";
@@ -12,6 +12,7 @@ const HomePage = () => {
   const MAX_BOOKS_COUNT = 10;
   const searchTerm = useRef("");
   const { data, loading, error } = useSelector((state) => state.books);
+  const { favitems } = useSelector((state) => state?.favorites);
   const dispatch = useDispatch();
   const books = data?.items || [];
   const [startIndex, setStartIndex] = useState(1);
@@ -20,6 +21,7 @@ const HomePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [localBooks, setLocalBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState([]);
 
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
@@ -29,7 +31,7 @@ const HomePage = () => {
       try {
         const user = JSON.parse(localStorage.getItem("user"));
         const userId = user?.id;
-        
+
         if (userId) {
           const response = await axios.get("http://localhost:5173/api/favourites/fetch");
           setFavorites(response.data);
@@ -48,9 +50,9 @@ const HomePage = () => {
         const response = await axios.get(`http://localhost:5000/api/books?page=${currentPage}&limit=8`,
           {
             headers: {
-                'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer ${token}`
             }
-        }
+          }
         );
         setLocalBooks(response.data.books);
         setTotalPages(response.data.totalPages);
@@ -60,6 +62,10 @@ const HomePage = () => {
     };
     fetchBooks();
   }, [currentPage]);
+
+  useEffect(() => {
+    setFilteredBooks(localBooks);
+  }, [localBooks]);
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -77,7 +83,7 @@ const HomePage = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/favorites/add", 
+      const response = await axios.post("http://localhost:5000/api/favorites/add",
         { bookId, userId }
       );
       setFavorites((prev) => [...prev, response.data]);
@@ -88,21 +94,18 @@ const HomePage = () => {
   };
 
   // Search functionality
-  const handleSearch = async (event) => {
+  const handleSearch = (event) => {
     event.preventDefault();
-    const searchValue = searchTerm.current.value.trim();
+    const searchValue = searchTerm.current.value.trim().toLowerCase();
     if (!searchValue) {
-      alert("Search term cannot be empty");
+      setFilteredBooks(localBooks);
       return;
     }
 
-    dispatch(
-      getBooks({
-        searchTerm: encodeURIComponent(searchValue),
-        maxResult: MAX_BOOKS_COUNT,
-        startIndex,
-      })
+    const filtered = localBooks.filter(book => 
+      book?.title?.toLowerCase().includes(searchValue)
     );
+    setFilteredBooks(filtered);
   };
 
   return (
@@ -114,7 +117,7 @@ const HomePage = () => {
           <nav className="hidden md:flex space-x-6">
             <Link to="/" className="hover:underline">Home</Link>
             <Link to="/categories" className="hover:underline">Categories</Link>
-            <Link to="/favourites" className="hover:underline">Favorites ({favorites.length || 0})</Link>
+            <Link to="/favourites" className="hover:underline">Favorites</Link>
             <Link to="/ProfilePage" className="hover:underline">Profile</Link>
           </nav>
           <button onClick={toggleMenu} className="focus:outline-none md:hidden">
@@ -134,23 +137,24 @@ const HomePage = () => {
       {/* Search Section */}
       <div className="container mx-auto px-4 py-6">
         <form className="flex space-x-4 mb-6" onSubmit={handleSearch}>
-          <input ref={searchTerm} type="text" placeholder="Search Google Books" className="flex-1 p-2 border rounded" />
+          <input ref={searchTerm} type="text" placeholder="Search Books" className="flex-1 p-2 border rounded" />
           <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Search</button>
         </form>
         {loading && <p>Loading...</p>}
         {error && <p className="text-red-500">{error}</p>}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {(books.length > 0 ? books : localBooks).map((book) => (
+          {(filteredBooks)?.map((book) => (
             <div key={book.id || book._id} className="bg-white p-4 shadow rounded hover:shadow-lg transition">
               <Link to={`/book/${book.id || book._id}`}>
-                <img 
-                  src={book.volumeInfo?.imageLinks?.thumbnail || book.coverImage || bookImage} 
-                  alt={book.volumeInfo?.title || book.title} 
-                  className="h-40 w-full object-cover mb-2" 
+                <img
+                  src={ book.coverImage || bookImage}
+                  alt={book.title}
+                  className="h-40 w-full object-cover mb-2"
                 />
               </Link>
-              <button 
-                onClick={() => handleAddToFav(book.id || book._id)} 
+              <h2 className="text-lg font-semibold">{book?.title}</h2> 
+              <button
+                onClick={() => handleAddToFav(book.id || book._id)}
                 className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               >
                 Add to Favorites
